@@ -1,0 +1,13 @@
+{% extends 'layout.html.twig' %}
+{% set active = 'upload' %}
+
+{% block container_content %}
+<h2>Upload an Image</h2>
+<p>Upload an image for <strong>ASCIIGRAMIFICATION&trade;!</strong></p>
+<form action="" method="post" novalidate {{ form_enctype(form) }} >
+        {{ form_widget(form) }}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </div>
+    </form>
+{% endblock %}

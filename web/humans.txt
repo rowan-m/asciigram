@@ -1,0 +1,11 @@
+/* TEAM */
+
+Developer: Rowan Merewood
+Blog: http://merewood.org
+Work: http://inviqa.com
+Twitter: @rowan_m
+
+/* SITE */
+
+Components: Silex, Composer, Twitter Bootstrap, AWS SDK for PHP, Amazon S3,
+    Amazon DynamoDb, Amazon Elastic Beanstalk
