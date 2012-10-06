@@ -3,6 +3,9 @@ Asciigram
 
 This is a dirty, little Silex application to demonstrate integration with the AWS PHP SDK.
 
+The current deployed version is here:
+http://ascii-dev-vfnuwuvfjh.elasticbeanstalk.com/
+
 The accompanying presentation that went with this code, followed these commands:
 
 ```bash
