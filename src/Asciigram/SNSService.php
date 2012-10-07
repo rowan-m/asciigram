@@ -5,30 +5,13 @@ namespace Asciigram;
 class SNSService
 {
     /**
-     * @var array
-     */
-    protected $config;
-
-    /**
      * @var \AmazonSNS
      */
     protected $amazonSNS;
 
-    public function __construct(array $config)
+    public function __construct(\AmazonSNS $amazonSNS)
     {
-        $this->config = $config;
-    }
-
-    /**
-     * @return \AmazonSNS
-     */
-    protected function getSNS()
-    {
-        if ($this->amazonSNS) {
-            return $this->amazonSNS;
-        }
-
-        return new \AmazonSNS($this->config);
+        $this->amazonSNS = $amazonSNS;
     }
 
     /**
@@ -37,13 +20,12 @@ class SNSService
      */
     public function sendNotification(ImageUpload $imageupload, $s3Name)
     {
-        $sns = $this->getSNS();
-        $response = $sns->create_topic('asciigram-image-uploaded');
+        $response = $this->amazonSNS->create_topic('asciigram-image-uploaded');
         $arn = (string) $response->body->CreateTopicResult->TopicArn;
 
         $this->initSNSSubscriptions($arn);
 
-        $response = $sns->publish(
+        $response = $this->amazonSNS->publish(
             $arn, $imageupload->getMessage(),
             array('Subject' => $s3Name)
         );
@@ -51,12 +33,11 @@ class SNSService
 
     protected function initSNSSubscriptions($arn)
     {
-        $sns = $this->getSNS();
-        $response = $sns->list_subscriptions_by_topic($arn);
+        $response = $this->amazonSNS->list_subscriptions_by_topic($arn);
         $subs = $response->body->ListSubscriptionsByTopicResult->Subscriptions->to_array();
 
         if (count($subs) == 0) {
-            $response = $sns->subscribe(
+            $response = $this->amazonSNS->subscribe(
                 $arn, 'http', 'http://ascii-dev-vfnuwuvfjh.elasticbeanstalk.com/process'
             );
         }
@@ -64,7 +45,6 @@ class SNSService
 
     public function confirmSubscription(array $message)
     {
-        $sns = $this->getSNS();
-        $response = $sns->confirm_subscription($message['TopicArn'], $message['Token']);
+        $response = $this->amazonSNS->confirm_subscription($message['TopicArn'], $message['Token']);
     }
 }

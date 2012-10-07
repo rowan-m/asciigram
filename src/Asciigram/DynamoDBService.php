@@ -5,44 +5,25 @@ namespace Asciigram;
 class DynamoDbService
 {
     /**
-     * @var array
-     */
-    protected $config;
-
-    /**
      * @var \AmazonDynamoDB
      */
     protected $amazonDynamoDB;
 
-    public function __construct(array $config)
+    public function __construct(\AmazonDynamoDB $amazonDynamoDB)
     {
-        $this->config = $config;
-    }
-
-    /**
-     * @return \AmazonDynamoDD
-     */
-    protected function getDynamoDb()
-    {
-        if ($this->amazonDynamoDB) {
-            return $this->amazonDynamoDB;
-        }
-
-        return new \AmazonDynamoDB($this->config);
+        $this->amazonDynamoDB = $amazonDynamoDB;
     }
 
     public function persist($imageId, $gramifiedImage, $message)
     {
-        $db = $this->getDynamoDb();
-
         // initialise table
         $tableName = 'asciigram';
         $this->initDynamoDbTable($tableName);
 
-        $response = $db->put_item(
+        $response = $this->amazonDynamoDB->put_item(
             array(
                 'TableName' => $tableName,
-                'Item' => $db->attributes(
+                'Item' => $this->amazonDynamoDB->attributes(
                     array(
                         'display' => 1,
                         'uploadDate' => time(),
@@ -57,11 +38,10 @@ class DynamoDbService
 
     protected function initDynamoDbTable($tableName)
     {
-        $db = $this->getDynamoDb();
-        $response = $db->list_tables();
+        $response = $this->amazonDynamoDB->list_tables();
 
         if (!in_array($tableName, $response->body->TableNames->to_array()->getArrayCopy())) {
-            $response = $db->create_table(array(
+            $response = $this->amazonDynamoDB->create_table(array(
                 'TableName' => $tableName,
                 'KeySchema' => array(
                     'HashKeyElement' => array(
@@ -80,12 +60,12 @@ class DynamoDbService
                 ));
 
             if ($response->isOk()) {
-                $response = $db->describe_table(array('TableName' => $tableName));
+                $response = $this->amazonDynamoDB->describe_table(array('TableName' => $tableName));
                 $status = (string) $response->body->Table->TableStatus;
 
                 while ($status !== 'ACTIVE') {
                     sleep(1);
-                    $response = $db->describe_table(array('TableName' => $tableName));
+                    $response = $this->amazonDynamoDB->describe_table(array('TableName' => $tableName));
                     $status = (string) $response->body->Table->TableStatus;
                 }
             }
@@ -94,7 +74,6 @@ class DynamoDbService
 
     public function getLatestGrams()
     {
-        $db = $this->getDynamoDb();
         $tableName = 'asciigram';
 
         $query = array(
@@ -113,7 +92,7 @@ class DynamoDbService
             )
         );
 
-        $response = $db->query($query);
+        $response = $this->amazonDynamoDB->query($query);
         $body = $response->body->to_array()->getArrayCopy();
 
         if ($body['Count'] == 1) {
