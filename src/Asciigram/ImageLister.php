@@ -3,17 +3,25 @@
 namespace Asciigram;
 class ImageLister
 {
-    public function __construct(array $config)
+    /**
+     * @var S3Service
+     */
+    protected $s3service;
+
+    /**
+     * @var DynamoDBService
+     */
+    protected $dynamoDBService;
+
+    public function __construct(S3Service $s3service, DynamoDBService $dynamoDBService)
     {
-        $this->config = $config;
+        $this->s3service = $s3service;
+        $this->dynamoDBService = $dynamoDBService;
     }
 
     public function fetchLatestGrams()
     {
-        $db = new DynamoDBService($this->config);
-        $raw = $db->getLatestGrams();
-
-        $s3 = new S3Service($this->config);
+        $raw = $this->dynamoDBService ->getLatestGrams();
 
         $grams = array();
 
@@ -21,7 +29,7 @@ class ImageLister
             $ref = current($protogram['gramified']);
             $grams[$ref]['uploadDate'] = current($protogram['uploadDate']);
             $grams[$ref]['message'] = current($protogram['message']);
-            $grams[$ref]['gramified'] = $s3->getGramified($ref);
+            $grams[$ref]['gramified'] = $this->s3service->getGramified($ref);
         }
 
         return $grams;

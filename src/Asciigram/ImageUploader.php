@@ -5,21 +5,24 @@ namespace Asciigram;
 class ImageUploader
 {
     /**
-     * @var array
+     * @var S3Service
      */
-    protected $config;
+    protected $s3service;
 
-    public function __construct(array $config)
+    /**
+     * @var S3Service
+     */
+    protected $snsService;
+
+    public function __construct(S3Service $s3service, SNSService $snsService)
     {
-        $this->config = $config;
+        $this->s3service = $s3service;
+        $this->snsService = $snsService;
     }
 
     public function persist(ImageUpload $imageupload)
     {
-        $s3 = new S3Service($this->config);
-        $s3Name = $s3->persistImageUpload($imageupload);
-
-        $sns = new SNSService($this->config);
-        $sns->sendNotification($imageupload, $s3Name);
+        $s3Name = $this->s3service->persistImageUpload($imageupload);
+        $this->snsService->sendNotification($imageupload, $s3Name);
     }
 }
