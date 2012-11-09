@@ -1,6 +1,2 @@
-/.buildpath
 /.elasticbeanstalk/
-/.project
-/.settings/
-/nbproject
 /vendor/*
