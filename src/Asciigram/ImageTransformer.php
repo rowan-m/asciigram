@@ -4,22 +4,37 @@ namespace Asciigram;
 
 class ImageTransformer
 {
-    public function __construct(array $config)
+    /**
+     * @var S3Service
+     */
+    protected $s3service;
+
+    /**
+     * @var S3Service
+     */
+    protected $snsService;
+
+    /**
+     * @var DynamoDBService
+     */
+    protected $dynamoDBService;
+
+    public function __construct(S3Service $s3service, SNSService $snsService, DynamoDBService $dynamoDBService)
     {
-        $this->config = $config;
+        $this->s3service = $s3service;
+        $this->snsService = $snsService;
+        $this->dynamoDBService = $dynamoDBService;
     }
 
     public function handleMessage(array $message)
     {
         if ($message['Type'] == 'SubscriptionConfirmation') {
-            $sns = new SNSService($this->config);
-            $sns->confirmSubscription($message);
+            $this->snsService->confirmSubscription($message);
         } elseif ($message['Type'] == 'Notification') {
-            $s3 = new S3Service($this->config);
-            $url = $s3->getImageUrl($message['Subject']);
+            $url = $this->s3service->getImageUrl($message['Subject']);
             $img = $this->resizeImage($url);
             $text = ($img) ? $this->gramifyImage($img) : 'Error!';
-            $textName = $s3->persistGramified($text);
+            $textName = $this->s3service->persistGramified($text);
 
             $db = new DynamoDBService($this->config);
             $db->persist($message['Subject'], $textName, $message['Message']);

@@ -26,8 +26,7 @@ $app->match('/upload', function() use ($app) {
         $form->bindRequest($app['request']);
         if ($form->isValid()) {
             $app['session']->setFlash('success', "upload.success");
-            $uploader = new Asciigram\ImageUploader($app['aws.config']);
-            $uploader->persist($imageupload);
+            $app['asciigram.image_uploader']->persist($imageupload);
         }
     }
 
@@ -39,14 +38,12 @@ $app->post('/process', function() use ($app) {
     $message = json_decode(file_get_contents('php://input'), true);
 
     if (!is_null($message)) {
-        $transformer = new Asciigram\ImageTransformer($app['aws.config']);
-        $transformer->handleMessage($message);
+        $app['asciigram.image_transformer']->handleMessage($message);
     }
 });
 
 $app->get('/', function() use ($app) {
-    $lister = new Asciigram\ImageLister($app['aws.config']);
-    $view = array('grams' => $lister->fetchLatestGrams());
+    $view = array('grams' => $app['asciigram.image_lister']->fetchLatestGrams());
     return $app['twig']->render('index.html.twig', array('view' => $view));
 })->bind('homepage');
 
