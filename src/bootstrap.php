@@ -52,26 +52,26 @@ $app['asciigram.amazonDynamoDB'] = $app->share(function ($app) {
 });
 
 $app['asciigram.s3service'] = $app->share(function ($app) {
-    return new Asciigram\S3Service($app['asciigram.amazonS3']);
+    return new \Asciigram\S3Service($app['asciigram.amazonS3']);
 });
 
 $app['asciigram.snsService'] = $app->share(function ($app) {
-    return new Asciigram\SNSService($app['asciigram.amazonSNS']);
+    return new \Asciigram\SNSService($app['asciigram.amazonSNS']);
 });
 
 $app['asciigram.dynamoDbService'] = $app->share(function ($app) {
-    return new Asciigram\DynamoDbService($app['asciigram.amazonDynamoDB']);
+    return new \Asciigram\DynamoDbService($app['asciigram.amazonDynamoDB']);
 });
 
 $app['asciigram.image_uploader'] = $app->share(function ($app) {
-    return new Asciigram\ImageUploader(
+    return new \Asciigram\ImageUploader(
         $app['asciigram.s3service'],
         $app['asciigram.snsService']
     );
 });
 
 $app['asciigram.image_transformer'] = $app->share(function ($app) {
-    return new Asciigram\ImageTransformer(
+    return new \Asciigram\ImageTransformer(
         $app['asciigram.s3service'],
         $app['asciigram.snsService'],
         $app['asciigram.dynamoDbService']
@@ -79,7 +79,7 @@ $app['asciigram.image_transformer'] = $app->share(function ($app) {
 });
 
 $app['asciigram.image_lister'] = $app->share(function ($app) {
-    return new Asciigram\ImageLister(
+    return new \Asciigram\ImageLister(
         $app['asciigram.s3service'],
         $app['asciigram.dynamoDbService']
     );
