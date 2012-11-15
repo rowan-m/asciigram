@@ -2,9 +2,6 @@
 
 $loader = require  __DIR__.'/../vendor/autoload.php';
 
-// Drop in our own namespace for application classes
-$loader->add('Asciigram', __DIR__);
-
 use Silex\Provider\SessionServiceProvider;
 use Silex\Provider\ValidatorServiceProvider;
 use Silex\Provider\FormServiceProvider;
