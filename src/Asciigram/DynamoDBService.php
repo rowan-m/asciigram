@@ -2,7 +2,7 @@
 
 namespace Asciigram;
 
-class DynamoDbService
+class DynamoDBService
 {
     /**
      * @var \AmazonDynamoDB
