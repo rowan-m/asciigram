@@ -11,17 +11,17 @@ class ImageLister
     /**
      * @var DynamoDBService
      */
-    protected $DynamoDBService;
+    protected $dynamoDBService;
 
-    public function __construct(S3Service $s3service, DynamoDBService $DynamoDBService)
+    public function __construct(S3Service $s3service, DynamoDBService $dynamoDBService)
     {
         $this->s3service = $s3service;
-        $this->DynamoDBService = $DynamoDBService;
+        $this->dynamoDBService = $dynamoDBService;
     }
 
     public function fetchLatestGrams()
     {
-        $raw = $this->DynamoDBService ->getLatestGrams();
+        $raw = $this->dynamoDBService ->getLatestGrams();
 
         $grams = array();
 
