@@ -56,7 +56,7 @@ $app['asciigram.snsService'] = $app->share(function ($app) {
     return new Asciigram\SNSService($app['asciigram.amazonSNS']);
 });
 
-$app['asciigram.DynamoDBService'] = $app->share(function ($app) {
+$app['asciigram.dynamoDBService'] = $app->share(function ($app) {
     return new Asciigram\DynamoDBService($app['asciigram.amazonDynamoDB']);
 });
 
@@ -71,14 +71,14 @@ $app['asciigram.image_transformer'] = $app->share(function ($app) {
     return new Asciigram\ImageTransformer(
         $app['asciigram.s3service'],
         $app['asciigram.snsService'],
-        $app['asciigram.DynamoDBService']
+        $app['asciigram.dynamoDBService']
     );
 });
 
 $app['asciigram.image_lister'] = $app->share(function ($app) {
     return new Asciigram\ImageLister(
         $app['asciigram.s3service'],
-        $app['asciigram.DynamoDBService']
+        $app['asciigram.dynamoDBService']
     );
 });
 

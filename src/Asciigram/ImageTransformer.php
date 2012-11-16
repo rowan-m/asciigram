@@ -17,13 +17,13 @@ class ImageTransformer
     /**
      * @var DynamoDBService
      */
-    protected $DynamoDBService;
+    protected $dynamoDBService;
 
-    public function __construct(S3Service $s3service, SNSService $snsService, DynamoDBService $DynamoDBService)
+    public function __construct(S3Service $s3service, SNSService $snsService, DynamoDBService $dynamoDBService)
     {
         $this->s3service = $s3service;
         $this->snsService = $snsService;
-        $this->DynamoDBService = $DynamoDBService;
+        $this->dynamoDBService = $dynamoDBService;
     }
 
     public function handleMessage(array $message)
