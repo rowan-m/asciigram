@@ -36,8 +36,7 @@ class ImageTransformer
             $text = ($img) ? $this->gramifyImage($img) : 'Error!';
             $textName = $this->s3service->persistGramified($text);
 
-            $db = new DynamoDBService($this->config);
-            $db->persist($message['Subject'], $textName, $message['Message']);
+            $this->dynamoDBService->persist($message['Subject'], $textName, $message['Message']);
         }
     }
 

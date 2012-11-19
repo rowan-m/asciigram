@@ -9,20 +9,25 @@ class DynamoDBService
      */
     protected $amazonDynamoDB;
 
+    /**
+     * @var \AmazonDynamoDB
+     */
+    protected $tablename;
+
     public function __construct(\AmazonDynamoDB $amazonDynamoDB)
     {
         $this->amazonDynamoDB = $amazonDynamoDB;
+        $this->tablename = "asciigram";
     }
 
     public function persist($imageId, $gramifiedImage, $message)
     {
         // initialise table
-        $tableName = 'asciigram';
-        $this->initDynamoDbTable($tableName);
+        $this->initDynamoDbTable();
 
         $response = $this->amazonDynamoDB->put_item(
             array(
-                'TableName' => $tableName,
+                'TableName' => $this->tablename,
                 'Item' => $this->amazonDynamoDB->attributes(
                     array(
                         'display' => 1,
@@ -36,13 +41,13 @@ class DynamoDBService
         );
     }
 
-    protected function initDynamoDbTable($tableName)
+    protected function initDynamoDbTable()
     {
         $response = $this->amazonDynamoDB->list_tables();
 
-        if (!in_array($tableName, $response->body->TableNames->to_array()->getArrayCopy())) {
+        if (!in_array($this->tablename, $response->body->TableNames->to_array()->getArrayCopy())) {
             $response = $this->amazonDynamoDB->create_table(array(
-                'TableName' => $tableName,
+                'TableName' => $this->tablename,
                 'KeySchema' => array(
                     'HashKeyElement' => array(
                         'AttributeName' => 'display',
@@ -60,12 +65,12 @@ class DynamoDBService
                 ));
 
             if ($response->isOk()) {
-                $response = $this->amazonDynamoDB->describe_table(array('TableName' => $tableName));
+                $response = $this->amazonDynamoDB->describe_table(array('TableName' => $this->tablename));
                 $status = (string) $response->body->Table->TableStatus;
 
                 while ($status !== 'ACTIVE') {
                     sleep(1);
-                    $response = $this->amazonDynamoDB->describe_table(array('TableName' => $tableName));
+                    $response = $this->amazonDynamoDB->describe_table(array('TableName' => $this->tablename));
                     $status = (string) $response->body->Table->TableStatus;
                 }
             }
@@ -74,10 +79,8 @@ class DynamoDBService
 
     public function getLatestGrams()
     {
-        $tableName = 'asciigram';
-
         $query = array(
-            'TableName' => $tableName,
+            'TableName' => $this->tablename,
             'AttributesToGet' => array('uploadDate', 'gramified', 'message'),
             'Limit' => 20,
             'ScanIndexForward' => false,
@@ -93,12 +96,51 @@ class DynamoDBService
         );
 
         $response = $this->amazonDynamoDB->query($query);
-        $body = $response->body->to_array()->getArrayCopy();
 
-        if ($body['Count'] == 1) {
+        if( ! $response)
+        {
+            return false;
+        }
+
+        $body = $response->body->to_array()->getArrayCopy(); 
+
+        if ($body['Count'] == 1) 
+        {
             return array($body['Items']);
         }
 
         return $body['Items'];
+    }
+
+    public function getGram($gramified)
+    {
+        $query = array(
+            'TableName' => $this->tablename, 
+            'AttributesToGet' => array('uploadDate', 'gramified', 'message'),
+            'ScanFilter' => array( 
+                'gramified' => array(
+                    'ComparisonOperator' => \AmazonDynamoDB::CONDITION_EQUAL,
+                    'AttributeValueList' => array(
+                        array( \AmazonDynamoDB::TYPE_STRING => strval($gramified) )
+                    ),
+                ),
+            )
+        );
+
+        $response = $this->amazonDynamoDB->scan($query);
+
+        if( ! $response)
+        {
+            return false;
+        }
+
+        $body = $response->body->to_array()->getArrayCopy();
+
+        if ($body['Count'] == 0)
+        {
+            return false;
+        }
+
+        return array($body['Items']);
     }
 }
