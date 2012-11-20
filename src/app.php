@@ -42,6 +42,29 @@ $app->post('/process', function() use ($app) {
     }
 });
 
+$app->get('/gram/{gramified}', function($gramified) use ($app) {
+    if ( ! $gram = $app['asciigram.image_lister']->fetchGram($app->escape($gramified))) 
+    {
+        $app->abort(404, "Gram does not exist, or hasn't completed yet");
+    }
+
+    return $app['twig']->render('gram.html.twig', array('gram' => $gram));
+})->bind('gram');
+
+$app->error(function (\Exception $e, $code) use ($app) { 
+    if ($app['debug']) {
+        return;
+    }
+    
+    if (404 == $code) {
+        $message = "The requested page could not be found."; 
+    } else {
+        $message = "Something went wrong";
+    } 
+
+    return $app['twig']->render('error.html.twig', array('code' => $code, 'message' => $message));
+});
+
 $app->get('/', function() use ($app) {
     $view = array('grams' => $app['asciigram.image_lister']->fetchLatestGrams());
     return $app['twig']->render('index.html.twig', array('view' => $view));

@@ -1,6 +1,7 @@
 <?php
 
 namespace Asciigram;
+
 class ImageLister
 {
     /**
@@ -21,7 +22,10 @@ class ImageLister
 
     public function fetchLatestGrams()
     {
-        $raw = $this->dynamoDBService ->getLatestGrams();
+        if( ! $raw = $this->dynamoDBService->getLatestGrams())
+        {
+            return false;
+        }
 
         $grams = array();
 
@@ -29,9 +33,29 @@ class ImageLister
             $ref = current($protogram['gramified']);
             $grams[$ref]['uploadDate'] = current($protogram['uploadDate']);
             $grams[$ref]['message'] = current($protogram['message']);
+            $grams[$ref]['id'] = $ref;
             $grams[$ref]['gramified'] = $this->s3service->getGramified($ref);
         }
 
         return $grams;
+    }
+
+    public function fetchGram($gramified)
+    {
+        if( ! $raw = $this->dynamoDBService->getGram($gramified))
+        {
+            return false;
+        }
+
+        $gram = $raw[0];
+
+        $ref = current($gram['gramified']);
+        $gram['uploadDate'] = current($gram['uploadDate']);
+        $gram['message'] = current($gram['message']);
+        $gram['id'] = $ref;
+        $gram['gramified'] = $this->s3service->getGramified($ref);
+        
+
+        return $gram;
     }
 }

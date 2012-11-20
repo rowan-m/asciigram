@@ -1,6 +1,6 @@
 /* TEAM */
 
-Developer: Rowan Merewood
+Developers: Rowan Merewood, Richard Miller, Chris Kemper
 Blog: http://merewood.org
 Work: http://inviqa.com
 Twitter: @rowan_m

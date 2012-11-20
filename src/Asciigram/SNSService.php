@@ -38,7 +38,7 @@ class SNSService
 
         if (count($subs) == 0) {
             $response = $this->amazonSNS->subscribe(
-                $arn, 'http', 'http://ascii-dev-vfnuwuvfjh.elasticbeanstalk.com/process'
+                $arn, 'http',  $app['aws.environment'] . '/process'
             );
         }
     }

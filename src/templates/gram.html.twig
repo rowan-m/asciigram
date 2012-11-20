@@ -1,16 +1,13 @@
 {% extends 'layout.html.twig' %}
-{% set active = 'homepage' %}
+{% set active = 'gram' %}
 
 {% block container_content %}
-<h2>'grams</h2>
-    {% for gram in view.grams %}
+<h2>Your gram</h2>
+
 <div>
     <h3>{{ gram.message }}</h3>
     <p>Uploaded: {{ gram.uploadDate|date("H:i d/m/Y") }}</p>
     <p style="line-height: 90%; letter-spacing:3px;">{{ gram.gramified|raw }}</p>
-    <p><a href="{{ path('gram', {gramified: gram.id }) }}" title="Share your gram">View your gram</a></p>
+    <p>Share your gram:<input type="text" value="{{ url('gram', {gramified: gram.id }) }}" /></p>
 </div>
-    {% else %}
-<p>No uploads</p>
-    {% endfor %}
 {% endblock %}
