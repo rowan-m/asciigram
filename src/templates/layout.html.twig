@@ -7,16 +7,16 @@
         <meta name="description" content="">
         <meta name="author" content="">
         <meta name="viewport" content="width=device-width">
-        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="/css/bootstrap.min.css">
         <style>
                 body {
                     padding-top: 60px;
                     padding-bottom: 40px;
                 }
             </style>
-            <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
-            <link rel="stylesheet" href="css/style.css">
-            <script src="js/libs/modernizr-2.5.3-respond-1.1.0.min.js"></script>
+            <link rel="stylesheet" href="/css/bootstrap-responsive.min.css">
+            <link rel="stylesheet" href="/css/style.css">
+            <script src="/js/libs/modernizr-2.5.3-respond-1.1.0.min.js"></script>
         </head>
         <body>
             <div class="navbar navbar-fixed-top">
@@ -30,9 +30,10 @@
                         <a class="brand" href="{{ path('homepage') }}">Asciigram</a>
                         <div class="nav-collapse">
                             <ul class="nav">
-              {% set active = active|default(null) %}
+                                    {% set active = active|default(null) %}
                                     <li {% if 'homepage' == active %}class="active"{% endif %}><a href="{{ path('homepage') }}">Home</a></li>
                                     <li {% if 'upload' == active %}class="active"{% endif %}><a href="{{ path('upload') }}">Upload</a></li>
+                                    <li {% if 'gram' == active %}class="active"{% endif %}><a href="#">'gram</a></li>
                                 </ul>
                             </div><!--/.nav-collapse -->
                         </div>
@@ -57,9 +58,9 @@
 
                         </div> <!-- /container -->
                         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-                        <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
-                        <script src="js/libs/bootstrap/transition.js"></script>
-                        <script src="js/libs/bootstrap/collapse.js"></script>
-                        <script src="js/script.js"></script>
+                        <script>window.jQuery || document.write('<script src="/js/libs/jquery-1.7.1.min.js"><\/script>')</script>
+                        <script src="/js/libs/bootstrap/transition.js"></script>
+                        <script src="/js/libs/bootstrap/collapse.js"></script>
+                        <script src="/js/script.js"></script>
                     </body>
                 </html>
