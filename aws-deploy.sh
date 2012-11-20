@@ -1,7 +1,6 @@
 #!/bin/bash
 version=v`date +%Y%m%d%H%M%S` &&
 
-cd asciigram &&
 zip -r ../$version.zip src vendor web \
     -x \*/.git\* \*/tests\* \*/Tests\* \
        \*/_samples\* \*/_docs\* \*/_compatibility_test\* &&
