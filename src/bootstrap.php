@@ -36,28 +36,28 @@ $app->register(new TwigServiceProvider(), array(
     'twig.path'             => array(__DIR__ . '/templates')
 ));
 
-$app['asciigram.amazonS3'] = $app->share(function ($app) {
+$app['aws.s3'] = $app->share(function ($app) {
     return new \AmazonS3($app['aws.config']);
 });
 
-$app['asciigram.amazonSNS'] = $app->share(function ($app) {
+$app['aws.sns'] = $app->share(function ($app) {
     return new \AmazonSNS($app['aws.config']);
 });
 
-$app['asciigram.amazonDynamoDB'] = $app->share(function ($app) {
+$app['aws.dynamodb'] = $app->share(function ($app) {
     return new \AmazonDynamoDB($app['aws.config']);
 });
 
 $app['asciigram.s3service'] = $app->share(function ($app) {
-    return new Asciigram\S3Service($app['asciigram.amazonS3']);
+    return new Asciigram\S3Service($app['aws.s3']);
 });
 
 $app['asciigram.snsService'] = $app->share(function ($app) {
-    return new Asciigram\SNSService($app['asciigram.amazonSNS']);
+    return new Asciigram\SNSService($app['aws.sns']);
 });
 
 $app['asciigram.dynamoDBService'] = $app->share(function ($app) {
-    return new Asciigram\DynamoDBService($app['asciigram.amazonDynamoDB']);
+    return new Asciigram\DynamoDBService($app['aws.dynamodb']);
 });
 
 $app['asciigram.image_uploader'] = $app->share(function ($app) {
