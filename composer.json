@@ -26,8 +26,9 @@
         "symfony/validator": "2.1.*",
         "symfony/yaml": "2.1.*",
         "symfony/config": "2.1.*",
-        "amazonwebservices/aws-sdk-for-php": ">=1.5.17.1",
-        "aws/aws-sdk-php": "2.*"
+        "amazonwebservices/aws-sdk-for-php": ">=1.6.0",
+        "aws/aws-sdk-php": "2.1.*",
+        "aws/aws-sdk-php-silex": "1.*"
     },
     "autoload": {
         "psr-0": {

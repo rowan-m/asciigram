@@ -8,6 +8,7 @@ use Silex\Provider\FormServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
 use Silex\Provider\TranslationServiceProvider;
 use Silex\Provider\TwigServiceProvider;
+use Aws\Silex\AwsServiceProvider;
 
 use Symfony\Component\Translation\Loader\YamlFileLoader;
 
@@ -15,11 +16,11 @@ $app = new Silex\Application();
 
 require __DIR__ . '/config.php';
 
-
 $app->register(new SessionServiceProvider());
 $app->register(new ValidatorServiceProvider());
 $app->register(new FormServiceProvider());
 $app->register(new UrlGeneratorServiceProvider());
+$app->register(new AwsServiceProvider());
 
 $app->register(new Silex\Provider\TranslationServiceProvider(), array(
     'locale_fallback' => 'en',
@@ -37,7 +38,7 @@ $app->register(new TwigServiceProvider(), array(
 ));
 
 $app['aws.s3'] = $app->share(function ($app) {
-    return new \AmazonS3($app['aws.config']);
+    return $app['aws']->get('s3');
 });
 
 $app['aws.sns'] = $app->share(function ($app) {
@@ -45,7 +46,7 @@ $app['aws.sns'] = $app->share(function ($app) {
 });
 
 $app['aws.dynamodb'] = $app->share(function ($app) {
-    return new \AmazonDynamoDB($app['aws.config']);
+    return $app['aws']->get('dynamodb');
 });
 
 $app['asciigram.s3service'] = $app->share(function ($app) {
