@@ -72,7 +72,7 @@ class S3Service
                 'ACL'    => CannedAcl::PUBLIC_READ,
             ));
 
-            $this->s3->waitUntil('bucket_exists', $this->bucket);
+            $this->s3->waitUntilBucketExists(array('Bucket' => $this->bucket));
         }
     }
 

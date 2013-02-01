@@ -64,7 +64,7 @@ class DynamoDBService
                 )
             ));
 
-            $this->dynamoDb->waitUntil('table_exists', $this->tableName);
+            $this->dynamoDb->waitUntilTableExists(array('TableName' => $this->tableName));
         }
     }
 
