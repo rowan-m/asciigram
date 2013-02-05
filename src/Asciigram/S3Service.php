@@ -1,94 +1,96 @@
 <?php
 
 namespace Asciigram;
+
+use Aws\S3\S3Client;
+use Aws\S3\Enum\CannedAcl;
+use Aws\S3\Exception\S3Exception;
+
 class S3Service
 {
     /**
-     * @var \AmazonS3
+     * @var S3Client
      */
-    protected $amazonS3;
+    protected $s3;
 
-    public function __construct(\AmazonS3 $amazonS3)
+    /**
+     * @param string
+     */
+    protected $bucket;
+
+    public function __construct(S3Client $s3)
     {
-        $this->amazonS3 = $amazonS3;
+        $this->s3 = $s3;
+        $this->bucket = 'asciigram-' . strtolower($this->s3->getCredentials()->getAccessKeyId());
     }
 
-    public function persistImageUpload(ImageUpload $imageupload)
+    public function persistImageUpload(ImageUpload $imageUpload)
     {
-        // initialise bucket
-        $bucket = 'asciigram-' . strtolower($this->amazonS3->key);
-        $this->initS3Bucket($bucket);
+        $this->initS3Bucket();
 
         // Upload the image
-        $imageName = uniqid();
-        $response = $this->amazonS3->create_object(
-            $bucket,
-            $imageName,
-            array(
-                'fileUpload' => $imageupload->getImage()->getPathname(),
-                'acl' => \AmazonS3::ACL_PUBLIC,
-            )
-        );
+        try {
+            $imageName = uniqid();
+            $this->s3->putObject(array(
+                'Bucket'     => $this->bucket,
+                'Key'        => $imageName,
+                'ACL'        => CannedAcl::PUBLIC_READ,
+                'SourceFile' => $imageUpload->getImage()->getPathname(),
+            ));
 
-        if ($response->isOk()) {
             return $imageName;
+        } catch (S3Exception $e) {
+            return false;
         }
     }
 
     public function persistGramified($text)
     {
-        // initialise bucket
-        $bucket = 'asciigram-' . strtolower($this->amazonS3->key);
-        $this->initS3Bucket($bucket);
+        $this->initS3Bucket();
 
         // Upload the image
-        $textName = uniqid();
-        $response = $this->amazonS3->create_object(
-            $bucket,
-            $textName,
-            array(
-                'body' => $text,
-                'acl' => \AmazonS3::ACL_PUBLIC,
-            )
-        );
+        try {
+            $textName = uniqid();
+            $this->s3->putObject(array(
+                'Bucket' => $this->bucket,
+                'Key'    => $textName,
+                'ACL'    => CannedAcl::PUBLIC_READ,
+                'Body'   => $text,
+            ));
 
-        if ($response->isOk()) {
             return $textName;
+        } catch (S3Exception $e) {
+            return false;
         }
     }
 
-    protected function initS3Bucket($bucket)
+    protected function initS3Bucket()
     {
-        if (!$this->amazonS3->if_bucket_exists($bucket)) {
-            $response = $this->amazonS3->create_bucket(
-                $bucket,
-                \AmazonS3::REGION_US_STANDARD,
-                \AmazonS3::ACL_PUBLIC
-            );
+        if ( ! $this->s3->doesBucketExist($this->bucket)) {
+            $this->s3->createBucket(array(
+                'Bucket' => $this->bucket,
+                'ACL'    => CannedAcl::PUBLIC_READ,
+            ));
 
-            if ($response->isOk()) {
-                $exists = $this->amazonS3->if_bucket_exists($bucket);
-
-                while (!$exists) {
-                    sleep(1);
-                    $exists = $this->amazonS3->if_bucket_exists($bucket);
-                }
-            }
+            $this->s3->waitUntilBucketExists(array('Bucket' => $this->bucket));
         }
     }
 
     public function getImageUrl($imageName)
     {
-        // initialise bucket
-        $bucket = 'asciigram-' . strtolower($this->amazonS3->key);
-        return $this->amazonS3->get_object_url($bucket, $imageName);
+        return (string) $this->getObjectCommand($imageName)->getRequest()->getUrl();
     }
 
     public function getGramified($textName)
     {
-        // initialise bucket
-        $bucket = 'asciigram-' . strtolower($this->amazonS3->key);
-        $response = $this->amazonS3->get_object($bucket, $textName);
-        return (string) $response->body;
+        return (string) $this->getObjectCommand($textName)->getResult()->get('Body');
+    }
+
+    protected function getObjectCommand($key)
+    {
+        return $this->s3->getCommand('GetObject', array(
+            'Bucket' => $this->bucket,
+            'Key'    => $key,
+        ));
     }
 }

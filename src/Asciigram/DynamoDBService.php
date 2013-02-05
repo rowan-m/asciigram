@@ -2,145 +2,110 @@
 
 namespace Asciigram;
 
+use Aws\DynamoDb\DynamoDbClient;
+use Aws\DynamoDb\Exception\ResourceNotFoundException;
+use Aws\DynamoDb\Enum\Type;
+use Aws\DynamoDb\Enum\ComparisonOperator;
+
 class DynamoDBService
 {
     /**
-     * @var \AmazonDynamoDB
+     * @var DynamoDbClient
      */
-    protected $amazonDynamoDB;
+    protected $dynamoDb;
 
     /**
-     * @var \AmazonDynamoDB
+     * @var string
      */
-    protected $tablename;
+    protected $tableName;
 
     public function __construct(\AmazonDynamoDB $amazonDynamoDB)
     {
-        $this->amazonDynamoDB = $amazonDynamoDB;
-        $this->tablename = "asciigram";
+        $this->dynamoDb = $amazonDynamoDB;
+        $this->tableName = "asciigram";
     }
 
     public function persist($imageId, $gramifiedImage, $message)
     {
-        // initialise table
         $this->initDynamoDbTable();
 
-        $response = $this->amazonDynamoDB->put_item(
-            array(
-                'TableName' => $this->tablename,
-                'Item' => $this->amazonDynamoDB->attributes(
-                    array(
-                        'display' => 1,
-                        'uploadDate' => time(),
-                        'imageId' => $imageId,
-                        'message' => $message,
-                        'gramified' => $gramifiedImage,
-                    )
-                ),
-            )
-        );
+        $this->dynamoDb->putItem(array(
+            'TableName' => $this->tableName,
+            'Item' => $this->dynamoDb->formatAttributes(array(
+                'display'    => 1,
+                'uploadDate' => time(),
+                'imageId'    => $imageId,
+                'message'    => $message,
+                'gramified'  => $gramifiedImage,
+            )),
+        ));
     }
 
     protected function initDynamoDbTable()
     {
-        $response = $this->amazonDynamoDB->list_tables();
-
-        if (!in_array($this->tablename, $response->body->TableNames->to_array()->getArrayCopy())) {
-            $response = $this->amazonDynamoDB->create_table(array(
-                'TableName' => $this->tablename,
+        try {
+            $this->dynamoDb->describeTable(array('TableName' => $this->tableName));
+        } catch (ResourceNotFoundException $e) {
+            $this->dynamoDb->createTable(array(
+                'TableName' => $this->tableName,
                 'KeySchema' => array(
                     'HashKeyElement' => array(
                         'AttributeName' => 'display',
-                        'AttributeType' => \AmazonDynamoDB::TYPE_NUMBER,
+                        'AttributeType' => Type::N,
                     ),
                     'RangeKeyElement' => array(
                         'AttributeName' => 'uploadDate',
-                        'AttributeType' => \AmazonDynamoDB::TYPE_NUMBER,
+                        'AttributeType' => Type::N,
                     )
                 ),
                 'ProvisionedThroughput' => array(
-                    'ReadCapacityUnits' => 50,
+                    'ReadCapacityUnits'  => 50,
                     'WriteCapacityUnits' => 10
                 )
-                ));
+            ));
 
-            if ($response->isOk()) {
-                $response = $this->amazonDynamoDB->describe_table(array('TableName' => $this->tablename));
-                $status = (string) $response->body->Table->TableStatus;
-
-                while ($status !== 'ACTIVE') {
-                    sleep(1);
-                    $response = $this->amazonDynamoDB->describe_table(array('TableName' => $this->tablename));
-                    $status = (string) $response->body->Table->TableStatus;
-                }
-            }
+            $this->dynamoDb->waitUntilTableExists(array('TableName' => $this->tableName));
         }
     }
 
     public function getLatestGrams()
     {
-        $query = array(
-            'TableName' => $this->tablename,
-            'AttributesToGet' => array('uploadDate', 'gramified', 'message'),
-            'Limit' => 20,
-            'ScanIndexForward' => false,
-            'HashKeyValue' => array(
-                \AmazonDynamoDB::TYPE_NUMBER => strval(1),
-            ),
-            'RangeKeyCondition' => array(
-                'ComparisonOperator' => \AmazonDynamoDB::CONDITION_LESS_THAN_OR_EQUAL,
-                'AttributeValueList' => array(
-                    array(\AmazonDynamoDB::TYPE_NUMBER => strval(time()))
-                ),
-            )
-        );
-
-        $response = $this->amazonDynamoDB->query($query);
-
-        if( ! $response)
-        {
+        try {
+            $items = $this->dynamoDb->getIterator('Query', array(
+                'TableName' => $this->tableName,
+                'AttributesToGet' => array('uploadDate', 'gramified', 'message'),
+                'Limit' => 20,
+                'ScanIndexForward' => false,
+                'HashKeyValue' => array(Type::N, '1'),
+                'RangeKeyCondition' => array(
+                    'ComparisonOperator' => ComparisonOperator::LE,
+                    'AttributeValueList' => array(array(Type::N => (string) time())),
+                )
+            ));
+        } catch (ResourceNotFoundException $e) {
             return false;
         }
 
-        $body = $response->body->to_array()->getArrayCopy(); 
-
-        if ($body['Count'] == 1) 
-        {
-            return array($body['Items']);
-        }
-
-        return $body['Items'];
+        return $items->toArray();
     }
 
     public function getGram($gramified)
     {
-        $query = array(
-            'TableName' => $this->tablename, 
-            'AttributesToGet' => array('uploadDate', 'gramified', 'message'),
-            'ScanFilter' => array( 
-                'gramified' => array(
-                    'ComparisonOperator' => \AmazonDynamoDB::CONDITION_EQUAL,
-                    'AttributeValueList' => array(
-                        array( \AmazonDynamoDB::TYPE_STRING => strval($gramified) )
+        try {
+            $items = $this->dynamoDb->getIterator('Scan', array(
+                'TableName' => $this->tableName,
+                'AttributesToGet' => array('uploadDate', 'gramified', 'message'),
+                'ScanFilter' => array(
+                    'gramified' => array(
+                        'ComparisonOperator' => ComparisonOperator::EQ,
+                        'AttributeValueList' => array(array(Type::S => (string) $gramified)),
                     ),
-                ),
-            )
-        );
-
-        $response = $this->amazonDynamoDB->scan($query);
-
-        if( ! $response)
-        {
+                )
+            ));
+        } catch (ResourceNotFoundException $e) {
             return false;
         }
 
-        $body = $response->body->to_array()->getArrayCopy();
-
-        if ($body['Count'] == 0)
-        {
-            return false;
-        }
-
-        return array($body['Items']);
+        return $items->toArray();
     }
 }
