@@ -19,7 +19,7 @@ class DynamoDBService
      */
     protected $tableName;
 
-    public function __construct(\AmazonDynamoDB $amazonDynamoDB)
+    public function __construct(DynamoDbClient $amazonDynamoDB)
     {
         $this->dynamoDb = $amazonDynamoDB;
         $this->tableName = "asciigram";

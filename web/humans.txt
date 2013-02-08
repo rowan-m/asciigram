@@ -1,11 +1,18 @@
-/* TEAM */
+    /* TEAM */
+    Your title: Rowan Merewood
+    Site: http://merewood.org
+    Twitter: @rowan_m
+    Location: Sheffield, UK
 
-Developers: Rowan Merewood, Richard Miller, Chris Kemper
-Blog: http://merewood.org
-Work: http://inviqa.com
-Twitter: @rowan_m
+    /* THANKS */
+    Name            / Github        / Twitter          / Reason
+    Richard Miller  / richardmiller / @mr_r_miller     / Fixing up the DI
+    Chris Kemper    / chrisdkemper  / @ChrisDKemper    / Viewing individual 'grams
+    Igor Wiedler    / igorw         / @igorwesome      / Client-side validation
+    Jeremy Lindblom / jeremeamia    / @jeremeamia      / Latest AWS SDK + Silex integration
+    Andrew Baker    / andrewjbaker  / @andrew_j_baker2 / Rendering optimisations
 
-/* SITE */
-
-Components: Silex, Composer, Twitter Bootstrap, AWS SDK for PHP, Amazon S3,
-    Amazon DynamoDb, Amazon Elastic Beanstalk
+    /* SITE */
+    Last update: 2013/02/08
+    Components: PHP, Silex, AWS, Twitter Bootstrap, Bootswatch
+    Software: Vim, obviously

@@ -53,18 +53,18 @@ cd ..
 # http://aws.amazon.com/code/6752709412171743
 # wget https://s3.amazonaws.com/elasticbeanstalk/cli/elasticbeanstalk-cli.zip
 wget \
-    https://s3.amazonaws.com/elasticbeanstalk/cli/AWS-ElasticBeanstalk-CLI-2.1.zip
+    https://s3.amazonaws.com/elasticbeanstalk/cli/AWS-ElasticBeanstalk-CLI-2.3.zip
 unzip elasticbeanstalk-cli.zip
 
 # Add the tools to the path
-export PATH=$PATH:`pwd`/AWS-ElasticBeanstalk-CLI-2.1/eb/linux/python2.7
+export PATH=\
+$PATH:`pwd`/AWS-ElasticBeanstalk-CLI-2.3/eb/linux/python2.7
 
 # test path
-eb --help
+eb --help | head -n 4
 
 # Set up access for our developer
-column -s, -t iam-login.credentials.csv
-column -s, -t iam-access.credentials.csv
+column -s, -t credentials.csv
 
 cat aws.credentials
 chmod 0600 aws.credentials
@@ -72,14 +72,18 @@ export AWS_CREDENTIAL_FILE=`pwd`/aws.credentials
 
 cd asciigram
 
+../AWS-ElasticBeanstalk-CLI-2.3/AWSDevTools/Linux/\
+AWSDevTools-RepositorySetup.sh
+
 eb init
 
-ls .elasticbeanstalk
 cat .elasticbeanstalk/config
 
 eb start
 
-curl -s http://asciigram-dev-32mhrjbris.elasticbeanstalk.com | head -n 30
+curl -s \
+    http://asciigram-env-ju2nbwectz.elasticbeanstalk.com \
+    | head -n13
 
 ls .elasticbeanstalk/
 vim .elasticbeanstalk/optionsettings
@@ -94,14 +98,15 @@ git aws.push
 
 eb status
 
-curl -v http://asciigram-dev-32mhrjbris.elasticbeanstalk.com
-curl -v http://asciigram-dev-32mhrjbris.elasticbeanstalk.com/humans.txt
+curl -s \
+http://asciigram-env-ju2nbwectz.elasticbeanstalk.com/ \
+; echo
 
 eb delete
 
 cd ..
 
-export PATH=$PATH:`pwd`/AWS-ElasticBeanstalk-CLI-2.1/api/bin
+export PATH=$PATH:`pwd`/AWS-ElasticBeanstalk-CLI-2.3/api/bin/
 
 elastic-beanstalk-list-available-solution-stacks
 
@@ -123,15 +128,16 @@ elastic-beanstalk-create-environment --help
 elastic-beanstalk-create-environment \
     -e ascii-dev -a asciigram  -l v-dev-001 \
     -d "Development environment" \
-    -s "64bit Amazon Linux running PHP 5.3"
+    -s "64bit Amazon Linux running PHP 5.4"
 
 # Sit back and wait for it to launch
 elastic-beanstalk-describe-environments -e ascii-dev
-elastic-beanstalk-describe-environments -j | python -mjson.tool
-elastic-beanstalk-describe-environments -j \
+elastic-beanstalk-describe-environments -d FALSE -j \
+     python -mjson.tool
+elastic-beanstalk-describe-environments -d FALSE -j \
     | python -mjson.tool | grep Status
 
-elastic-beanstalk-describe-environments -j \
+elastic-beanstalk-describe-environments -d FALSE -j \
     | python -mjson.tool | grep Health
 
 
@@ -172,14 +178,15 @@ s3cmd put v*.zip s3://elasticbeanstalk-us-east-1-837326383672
 # Upload the new manual version
 elastic-beanstalk-create-application-version \
     -a asciigram -d 'Version from Zip file' \
-    -l v20120912113006 \
-    -s elasticbeanstalk-us-east-1-837326383672/v20120912113006.zip
+    -l v20130208172455 \
+    -s elasticbeanstalk-us-east-1-837326383672/v20130208172455.zip
 
 
 elastic-beanstalk-update-environment \
-    -e ascii-dev -l v20120912113006
+    -e ascii-dev -l v20130208172455
 
-curl -v http://ascii-dev-vfnuwuvfjh.elasticbeanstalk.com
+curl -s http://ascii-dev-du7mpxqhe9.elasticbeanstalk.com\
+; echo
 
 # Quickly wrap that up with a script
 vim aws-deploy.sh

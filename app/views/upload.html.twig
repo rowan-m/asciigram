@@ -1,0 +1,12 @@
+{% extends "layout.html.twig"%}
+{% set active = 'upload' %}
+{% block main %}
+<h1>{{ "upload.heading"|trans }}</h1>
+<p>{{ "upload.intro"|trans }}</p>
+<form action="" method="post" {{ form_enctype(form) }} >
+    {{ form_widget(form) }}
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ "upload.button"|trans }}</button>
+    </div>
+</form>
+{% endblock %}
