@@ -23,7 +23,7 @@ cd asciigram
 # Drop in the standard Composer file for Silex
 vim composer.json
 curl -s http://getcomposer.org/installer | php
-./composer.phar install
+./composer.phar install --prefer-dist
 
 # Make the root
 mkdir web
