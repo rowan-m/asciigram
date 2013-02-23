@@ -83,31 +83,52 @@ class ImageTransformer
     {
         $text = '';
         // get width and height
-        $width = imagesx($img);
+        $width  = imagesx($img);
         $height = imagesy($img);
 
-        // loop for height
-        for ($h = 0; $h < $height; $h++) {
-            // loop for height
-            for ($w = 0; $w < $width; $w++) {
-                // add color
-                $rgb = imagecolorat($img, $w, $h);
-                $r = ($rgb >> 16) & 0xFF;
-                $g = ($rgb >> 8) & 0xFF;
-                $b = $rgb & 0xFF;
-                // create a hex value from the rgb
-                $hex = '#' . str_pad(dechex($r), 2, '0', STR_PAD_LEFT)
-                    . str_pad(dechex($g), 2, '0', STR_PAD_LEFT)
-                    . str_pad(dechex($b), 2, '0', STR_PAD_LEFT);
+        // Initially, no previous colour has been seen, so default to NULL.
+        $previousColor = NULL;
 
-                // now add to the return string and we are done
-                if ($w == ($width - 1)) {
-                    $text .= '<br />';
+        // loop for height
+        for ($y = 0; $y < $height; ++$y) {
+            // loop for width
+            for ($x = 0; $x < $width; ++$x) {
+                // add color
+                $color = imagecolorat($img, $x, $y);
+
+                // If the current colour is the same as the previous colour,
+                // simply append a hash.
+                if ($color === $previousColor) {
+                    $text .= '#';
                 } else {
-                    $text .= '<span style="color:' . $hex . ';">#</span>';
+                    // We arrive here if no previous colour has been seen, or
+                    // the previous colour seen differs from the current colour.
+
+                    // If a previous colour has been seen, a span element /must/
+                    // have been opened; close it.
+                    if ( !is_null($previousColor)) {
+                        $text .= '</span>';
+                    }
+
+                    // Open a new span element that uses the current colour.
+                    $text .= sprintf("<span style=\"color: #%02x%02x%02x\">#",
+                        ($color >> 16) & 0xff, ($color >> 8) & 0xff,
+                        $color & 0xff);
                 }
+
+                // Where this is the last pixel of the current row (x), append
+                // a br element to format the asciigram correctly.
+                if ($x === ($width - 1)) {
+                    $text .= "<br />\n";
+                }
+
+                // Update previous colour.
+                $previousColor = $color;
             }
         }
+
+        // Close the final span element.
+        $text .= '</span>';
 
         return $text;
     }
