@@ -76,7 +76,7 @@ class DynamoDBService
                 'AttributesToGet' => array('uploadDate', 'gramified', 'message'),
                 'Limit' => 20,
                 'ScanIndexForward' => false,
-                'HashKeyValue' => array(Type::N, '1'),
+                'HashKeyValue' => array(Type::N => '1'),
                 'RangeKeyCondition' => array(
                     'ComparisonOperator' => ComparisonOperator::LE,
                     'AttributeValueList' => array(array(Type::N => (string) time())),
@@ -85,7 +85,7 @@ class DynamoDBService
         } catch (ResourceNotFoundException $e) {
             return false;
         }
-
+        
         return $items->toArray();
     }
 
