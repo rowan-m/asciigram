@@ -27,6 +27,9 @@
         "symfony/twig-bridge": "2.1.*",
         "symfony/yaml": "2.1.*",
         "amazonwebservices/aws-sdk-for-php": ">=1.6.0",
+        "ext-apc": "*",
+        "doctrine/cache": "*",
+        "monolog/monolog": "*",
         "aws/aws-sdk-php": "2.1.*",
         "aws/aws-sdk-php-silex": "1.*"
     },
