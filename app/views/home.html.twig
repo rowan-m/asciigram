@@ -6,7 +6,7 @@
 <div>
     <h2>{{ gram.message }}</h2>
     <p>Uploaded: {{ gram.uploadDate|date("H:i d/m/Y") }}</p>
-    <p style="line-height: 90%; letter-spacing:3px;">{{ gram.gramified|raw }}</p>
+    <div class="gram"><span>{{ gram.gramified|raw }}</span></div>
     <p><a href="{{ path('gram', {gramified: gram.id }) }}" title="Share your gram">View your gram</a></p>
 </div>
     {% else %}

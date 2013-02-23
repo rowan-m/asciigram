@@ -1,0 +1,10 @@
+.gram {
+    line-height: 90%;
+    letter-spacing:3px;
+    margin: 5px;
+    padding: 5px;
+}
+
+.gram span {
+    background: white;
+}
