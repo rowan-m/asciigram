@@ -3,8 +3,7 @@ Asciigram
 
 This is a dirty, little Silex application to demonstrate integration with the AWS PHP SDK.
 
-The current deployed version is here:
-http://ascii-dev-vfnuwuvfjh.elasticbeanstalk.com/
+There is currently no deployed version while I update things for Sunshine PHP.
 
 The accompanying presentation that went with this code, followed these commands:
 
@@ -24,7 +23,7 @@ cd asciigram
 # Drop in the standard Composer file for Silex
 vim composer.json
 curl -s http://getcomposer.org/installer | php
-./composer.phar install
+./composer.phar install --prefer-dist
 
 # Make the root
 mkdir web
