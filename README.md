@@ -160,7 +160,7 @@ sudo apt-get install s3cmd
 s3cmd --configure
 
 # List versions
-s3cmd -ls
+s3cmd ls
 
 zip -r ../v`date +%Y%m%d%H%M%S`.zip vendor web \
     -x \*/.git\* \*/Tests\*
